@@ -133,6 +133,7 @@
           statusText.classList.add('text-red-500');
         }
       } catch (error) {
+        console.error("Config Load Error:", error);
         statusText.innerText = "Connection Error. Check Firebase Rules.";
         statusText.classList.add('text-red-500');
       }
@@ -185,25 +186,25 @@
     }
 
     function renderLogin() {
-      // 요청하신 드롭다운 정렬 순서 정의
       const branchOrder = ['본사', '강남지사', '강북지사', '강동지사', '경상지사', '전라(제주)지사', '세종(쇼룸)', '대리점'];
-      // 데이터베이스에 존재하는 계정만 필터링하되 정의된 순서 유지
       const sortedBranches = branchOrder.filter(name => ACCOUNTS[name]);
+      const extraBranches = Object.keys(ACCOUNTS).filter(name => !branchOrder.includes(name)).sort();
+      const finalBranches = [...sortedBranches, ...extraBranches];
 
       return `
         <div class="min-h-screen bg-white flex flex-col items-center justify-center p-6 animate-fade-in">
           <div class="w-full max-w-sm mb-12">
             <div class="text-center mb-12 flex flex-col items-center">
-              <div class="inline-flex items-center justify-center w-14 h-14 bg-black text-white text-2xl font-black rounded-2xl mb-6 shadow-lg">O</div>
-              <h1 class="text-2xl font-black tracking-tighter uppercase">OSKA Integrated</h1>
-              <p class="text-neutral-400 text-[10px] font-bold tracking-[0.3em] uppercase mt-1">Management Portal</p>
+              <img src="오스카CI_04LogoBLACK_1.png" alt="OSKA Logo" class="h-15 mb-8 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+              <div style="display:none;" class="inline-flex items-center justify-center w-14 h-14 bg-black text-white text-2xl font-black rounded-2xl mb-6 shadow-lg">O</div>
+              <h1 class="text-[11px] font-black tracking-[0.3em] uppercase text-neutral-400 mt-2">Integrated Management Portal</h1>
             </div>
             <form id="loginForm" class="space-y-4">
               <div class="space-y-1">
                 <label class="text-[9px] font-black text-neutral-300 uppercase tracking-widest ml-1">Branch</label>
                 <select id="loginId" class="w-full h-12 px-4 bg-white border border-neutral-200 rounded-xl font-bold text-neutral-800 focus:border-black outline-none transition-all appearance-none cursor-pointer text-sm">
-                  ${sortedBranches.length > 0 
-                    ? sortedBranches.map(branch => `<option value="${branch}" ${state.loginId === branch ? 'selected' : ''}>${branch}</option>`).join('')
+                  ${finalBranches.length > 0 
+                    ? finalBranches.map(branch => `<option value="${branch}" ${state.loginId === branch ? 'selected' : ''}>${branch}</option>`).join('')
                     : `<option disabled>No Branches Found</option>`}
                 </select>
               </div>
@@ -229,7 +230,8 @@
         <div class="h-screen flex flex-col bg-white overflow-hidden">
           <nav class="flex justify-between items-center px-6 py-3 border-b border-neutral-100 bg-white z-50">
             <div class="flex items-center gap-4">
-              <div class="w-7 h-7 bg-black text-white flex items-center justify-center text-xs font-black rounded">O</div>
+              <img src="오스카CI_04LogoBLACK_1.png" alt="OSKA" class="h-5 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+              <div style="display:none;" class="w-7 h-7 bg-black text-white flex items-center justify-center text-xs font-black rounded">O</div>
               <span class="font-black text-xs tracking-widest uppercase">${title}</span>
             </div>
             <button id="exitView" class="group flex items-center gap-2 text-[10px] font-black text-neutral-400 hover:text-black transition-all">
@@ -245,14 +247,17 @@
     }
 
     function renderDashboard() {
-      const isDealer = state.currentUser === '대리점';
+      const isDealer = state.currentUser === '대리점' || (!['본사', '강남지사', '강북지사', '강동지사', '경상지사', '전라(제주)지사', '세종(쇼룸)'].includes(state.currentUser));
       const blockedTitles = ['소비자단가표', '레퍼런스북'];
       return `
         <div class="min-h-screen bg-white animate-fade-in">
           <nav class="fixed w-full top-0 z-[60] bg-white/80 backdrop-blur-md border-b border-neutral-100 h-16 flex items-center px-8 justify-between">
             <div class="flex items-center gap-3">
-              <div class="w-8 h-8 bg-black text-white flex items-center justify-center text-lg font-black rounded-lg">O</div>
-              <span class="text-sm font-black tracking-[0.2em] uppercase">OSKA</span>
+              <img src="오스카CI_04LogoBLACK_1.png" alt="OSKA Logo" class="h-6 md:h-7 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+              <div style="display:none;" class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-black text-white flex items-center justify-center text-lg font-black rounded-lg">O</div>
+                <span class="text-sm font-black tracking-[0.2em] uppercase">OSKA</span>
+              </div>
             </div>
             <div class="flex items-center gap-6">
               <div class="hidden md:flex items-center gap-2">
